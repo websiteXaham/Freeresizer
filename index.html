@@ -13,7 +13,7 @@
 
 /* Local utility CSS: no Tailwind CDN, no external CSS dependency. */
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth};body{transition:background-color .2s ease,color .2s ease}
+html{scroll-behavior:smooth} body{transition:background-color .2s ease,color .2s ease}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
 a{color:inherit;text-decoration:none}button,select,input{font:inherit}
 .hidden{display:none}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.flex-col{flex-direction:column}
@@ -43,9 +43,6 @@ select,input{outline:none}select:focus,input:focus{border-color:#2563eb;box-shad
 @media (min-width:640px){.sm\:block{display:block}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:p-8{padding:2rem}.sm\:p-12{padding:3rem}.sm\:text-5xl{font-size:3rem;line-height:1}}
 @media (min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
 html.dark body{background:#020617;color:#f1f5f9}
-.dark\:bg-slate-950{background:#020617}.dark\:bg-slate-950\/95{background:rgba(2,6,23,.95)}.dark\:bg-slate-900{background:#0f172a}.dark\:bg-slate-800{background:#1e293b}.dark\:bg-blue-950{background:#172554}.dark\:bg-blue-950\/40{background:rgba(23,37,84,.4)}
-.dark\:border-slate-800{border-color:#1e293b}.dark\:border-slate-700{border-color:#334155}.dark\:border-blue-900{border-color:#1e3a8a}
-.dark\:text-slate-100{color:#f1f5f9}.dark\:text-slate-400{color:#94a3b8}.dark\:text-blue-200{color:#bfdbfe}.dark\:text-blue-300{color:#93c5fd}
 html.dark .dark\:bg-slate-950{background:#020617}html.dark .dark\:bg-slate-950\/95{background:rgba(2,6,23,.95)}html.dark .dark\:bg-slate-900{background:#0f172a}html.dark .dark\:bg-slate-800{background:#1e293b}html.dark .dark\:bg-blue-950{background:#172554}html.dark .dark\:bg-blue-950\/40{background:rgba(23,37,84,.4)}
 html.dark .dark\:border-slate-800{border-color:#1e293b}html.dark .dark\:border-slate-700{border-color:#334155}html.dark .dark\:border-blue-900{border-color:#1e3a8a}
 html.dark .dark\:text-slate-100{color:#f1f5f9}html.dark .dark\:text-slate-400{color:#94a3b8}html.dark .dark\:text-blue-200{color:#bfdbfe}html.dark .dark\:text-blue-300{color:#93c5fd}
@@ -190,49 +187,29 @@ html.dark .dark\:drop{border-color:#475569}html.dark .drop.active,html.dark .dro
 const $ = id => document.getElementById(id);
 let photo = null, signature = null, outputURL = null;
 
-/* Theme system: explicit Light/Dark switching with safe localStorage handling. */
 function applyTheme(dark, save){
   document.documentElement.classList.toggle("dark", !!dark);
-
   const themeButton = $("theme");
   if(themeButton){
     themeButton.textContent = dark ? "☀️" : "🌙";
-    themeButton.setAttribute(
-      "aria-label",
-      dark ? "Switch to light theme" : "Switch to dark theme"
-    );
+    themeButton.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
     themeButton.setAttribute("title", dark ? "Light theme" : "Dark theme");
   }
-
   if(save){
-    try{
-      localStorage.setItem("theme", dark ? "dark" : "light");
-    }catch(e){}
+    try{ localStorage.setItem("theme", dark ? "dark" : "light"); }catch(e){}
   }
 }
-
 function themeInit(){
   let saved = null;
-  try{
-    saved = localStorage.getItem("theme");
-  }catch(e){}
-
-  const dark =
-    saved === "dark" ||
-    (
-      saved !== "light" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    );
-
+  try{ saved = localStorage.getItem("theme"); }catch(e){}
+  const dark = saved === "dark" ||
+    (saved !== "light" && window.matchMedia &&
+     window.matchMedia("(prefers-color-scheme: dark)").matches);
   applyTheme(dark, false);
 }
-
 themeInit();
-
 $("theme").addEventListener("click", function(){
-  const dark = !document.documentElement.classList.contains("dark");
-  applyTheme(dark, true);
+  applyTheme(!document.documentElement.classList.contains("dark"), true);
 });
 
 function tab(type){
