@@ -13,7 +13,7 @@
 
 /* Local utility CSS: no Tailwind CDN, no external CSS dependency. */
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth};body{transition:background-color .2s ease,color .2s ease}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
 a{color:inherit;text-decoration:none}button,select,input{font:inherit}
 .hidden{display:none}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.flex-col{flex-direction:column}
@@ -190,19 +190,50 @@ html.dark .dark\:drop{border-color:#475569}html.dark .drop.active,html.dark .dro
 const $ = id => document.getElementById(id);
 let photo = null, signature = null, outputURL = null;
 
-function themeInit(){
-  const dark=localStorage.getItem("theme")==="dark" ||
-    (!localStorage.getItem("theme") && matchMedia("(prefers-color-scheme:dark)").matches);
-  document.documentElement.classList.toggle("dark",dark);
-  $("theme").textContent=dark?"☀️":"🌙";
+/* Theme system: explicit Light/Dark switching with safe localStorage handling. */
+function applyTheme(dark, save){
+  document.documentElement.classList.toggle("dark", !!dark);
+
+  const themeButton = $("theme");
+  if(themeButton){
+    themeButton.textContent = dark ? "☀️" : "🌙";
+    themeButton.setAttribute(
+      "aria-label",
+      dark ? "Switch to light theme" : "Switch to dark theme"
+    );
+    themeButton.setAttribute("title", dark ? "Light theme" : "Dark theme");
+  }
+
+  if(save){
+    try{
+      localStorage.setItem("theme", dark ? "dark" : "light");
+    }catch(e){}
+  }
 }
+
+function themeInit(){
+  let saved = null;
+  try{
+    saved = localStorage.getItem("theme");
+  }catch(e){}
+
+  const dark =
+    saved === "dark" ||
+    (
+      saved !== "light" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    );
+
+  applyTheme(dark, false);
+}
+
 themeInit();
-$("theme").onclick=()=>{
-  const dark=!document.documentElement.classList.contains("dark");
-  document.documentElement.classList.toggle("dark",dark);
-  localStorage.setItem("theme",dark?"dark":"light");
-  $("theme").textContent=dark?"☀️":"🌙";
-};
+
+$("theme").addEventListener("click", function(){
+  const dark = !document.documentElement.classList.contains("dark");
+  applyTheme(dark, true);
+});
 
 function tab(type){
   const p=type==="photo";
